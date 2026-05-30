@@ -1,0 +1,25 @@
+[package]
+name = "fazuh-common"
+
+
+version = "0.1.0"
+
+
+edition = "2024"
+
+[features]
+log = []
+log-cli = ["log", "dep:clap"]
+log-file = ["log", "dep:tracing-appender"]
+
+[dependencies]
+derive_builder = "0.20.2"
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+tracing-appender = { version = "0.2.3", optional = true }
+
+clap = { version = "4.6.1", optional = true, features = ["derive"] }
+
+[lints.clippy]
+uninlined_format_args = "warn"
+new_without_default = "allow"
