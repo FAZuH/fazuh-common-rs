@@ -1,0 +1,21 @@
+# Credit: Workflow configs based on https://github.com/Wynntils/Wynntils
+
+name: Release & Deploy
+
+on:
+  push:
+    branches:
+      - release
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Release
+    uses: ./.github/workflows/_release.yml
+    with:
+      build-binaries: false
+      publish-crates: true
+    secrets: inherit
