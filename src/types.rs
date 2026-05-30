@@ -18,6 +18,23 @@ impl Percent {
     pub fn value(&self) -> f64 {
         self.0
     }
+
+    /// Returns the value as a decimal string (e.g. "0.5" for 50%).
+    pub fn as_decimal(&self) -> String {
+        self.0.to_string()
+    }
+
+    /// Returns the value as a percentage string with percent sign
+    /// (e.g. "50%" for 50%).
+    pub fn as_percentage(&self) -> String {
+        format!("{}%", self.0 * 100.0)
+    }
+}
+
+impl std::fmt::Display for Percent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}%", self.0 * 100.0)
+    }
 }
 
 /// The error type returned when parsing a `Percent` fails.
@@ -121,5 +138,59 @@ mod tests {
     fn display_error() {
         let err = "abc".parse::<Percent>().unwrap_err();
         assert!(err.to_string().contains("failed to parse percent:"));
+    }
+
+    #[test]
+    fn as_decimal_returns_inner_value() {
+        let p = Percent::new(0.5);
+        assert_eq!(p.as_decimal(), "0.5");
+    }
+
+    #[test]
+    fn as_decimal_zero() {
+        let p = Percent::new(0.0);
+        assert_eq!(p.as_decimal(), "0");
+    }
+
+    #[test]
+    fn as_decimal_one() {
+        let p = Percent::new(1.0);
+        assert_eq!(p.as_decimal(), "1");
+    }
+
+    #[test]
+    fn as_percentage_from_half() {
+        let p = Percent::new(0.5);
+        assert_eq!(p.as_percentage(), "50%");
+    }
+
+    #[test]
+    fn as_percentage_from_one() {
+        let p = Percent::new(1.0);
+        assert_eq!(p.as_percentage(), "100%");
+    }
+
+    #[test]
+    fn as_percentage_from_zero() {
+        let p = Percent::new(0.0);
+        assert_eq!(p.as_percentage(), "0%");
+    }
+
+    #[test]
+    fn display_shows_percent_sign() {
+        let p = Percent::new(0.8);
+        assert_eq!(format!("{p}"), "80%");
+    }
+
+    #[test]
+    fn display_shows_percent_sign_for_hundred() {
+        let p = Percent::new(1.0);
+        assert_eq!(format!("{p}"), "100%");
+    }
+
+    #[test]
+    fn display_shows_percent_sign_for_zero() {
+        let p = Percent::new(0.0);
+        assert_eq!(format!("{p}"), "0%");
     }
 }
