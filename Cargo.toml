@@ -11,6 +11,7 @@ edition = "2024"
 log = []
 log-cli = ["log", "dep:clap"]
 log-file = ["log", "dep:tracing-appender"]
+types = []
 
 [dependencies]
 derive_builder = "0.20.2"
