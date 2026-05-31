@@ -94,8 +94,13 @@ jobs:
 
   publish-crates:
     name: Publish to crates.io
-    needs: [changelog, patch-version]
-    if: ${{ needs.changelog.outputs.skipped != 'true' && inputs.publish-crates }}
+    needs: [changelog, patch-version, build]
+    if: |
+      always() && 
+      needs.changelog.outputs.skipped != 'true' && 
+      inputs.publish-crates && 
+      needs.changelog.result == 'success' &&
+      (needs.build.result == 'success' || needs.build.result == 'skipped')
     runs-on: ubuntu-latest
     environment:
       name: crates-io-production
