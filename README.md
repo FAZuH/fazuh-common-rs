@@ -10,6 +10,7 @@ This crate is heavily feature-gated to ensure downstream projects only compile w
 - `log-file`: Adds support for rolling daily file appenders using `tracing-appender`.
 - `log-cli`: Adds CLI-aware ANSI color parsing with `clap`.
 - `types`: Common utility types (e.g., `Percent`).
+- `types-serde`: Enables serde `Serialize`/`Deserialize` for types.
 
 ## Examples
 
