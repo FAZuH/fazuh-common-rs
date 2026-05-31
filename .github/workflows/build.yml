@@ -1,0 +1,32 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      cargo-build-args:
+        description: 'Arguments to pass to cargo build'
+        required: false
+        type: string
+        default: '--all-features --all-targets'
+      upload-binary:
+        description: 'Whether to upload the binary artifact'
+        required: false
+        type: boolean
+        default: false
+      release:
+        description: 'Whether this is a release build (affects artifact path)'
+        required: false
+        type: boolean
+        default: false
+      require-patched-cargo:
+        description: 'Fail if patched Cargo.toml artifact is not found'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "build-binaries is false for this crate -- no build needed"
