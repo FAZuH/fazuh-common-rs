@@ -5,7 +5,7 @@ use std::str::FromStr;
 /// Wraps an `f64` value where `1.0` represents 100%. This is useful for CLI
 /// parsing where users might input `0.5`, `50`, or `50%`, all of which
 /// should resolve to a 50% representation (i.e. `0.5`).
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Percent(f64);
 
 impl Percent {
@@ -76,9 +76,92 @@ impl FromStr for Percent {
     }
 }
 
+impl From<f32> for Percent {
+    fn from(value: f32) -> Self {
+        Percent(value.into())
+    }
+}
+
+impl From<f64> for Percent {
+    fn from(value: f64) -> Self {
+        Percent(value)
+    }
+}
+
+impl std::ops::Mul<f64> for Percent {
+    type Output = f64;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        self.0 * rhs
+    }
+}
+
+impl std::ops::Div<f64> for Percent {
+    type Output = f64;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        self.0 / rhs
+    }
+}
+
+impl std::ops::Add for Percent {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Percent(self.0 + rhs.0)
+    }
+}
+
+impl std::ops::Sub for Percent {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Percent(self.0 - rhs.0)
+    }
+}
+
+impl std::ops::AddAssign for Percent {
+    fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0;
+    }
+}
+
+impl std::ops::SubAssign for Percent {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.0 -= rhs.0;
+    }
+}
+
+impl std::iter::Sum for Percent {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Percent(0.0), |a, b| a + b)
+    }
+}
+
+#[cfg(feature = "types-serde")]
+impl serde::Serialize for Percent {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        self.0.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "types-serde")]
+impl<'de> serde::Deserialize<'de> for Percent {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        f64::deserialize(deserializer).map(Percent)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn assert_f64_eq(a: f64, b: f64) {
+        assert!(
+            (a - b).abs() < f64::EPSILON,
+            "left {a} != right {b}"
+        );
+    }
 
     #[test]
     fn parse_decimal_less_than_one() {
@@ -192,5 +275,62 @@ mod tests {
     fn display_shows_percent_sign_for_zero() {
         let p = Percent::new(0.0);
         assert_eq!(format!("{p}"), "0%");
+    }
+
+    #[test]
+    fn default_is_zero() {
+        let p = Percent::default();
+        assert_eq!(p.value(), 0.0);
+    }
+
+    #[test]
+    fn mul_applies_percentage() {
+        let p = Percent::new(0.25);
+        assert_eq!(p * 200.0, 50.0);
+    }
+
+    #[test]
+    fn div_reverses_percentage() {
+        let p = Percent::new(0.5);
+        assert_eq!(p * 200.0 / 0.5, 200.0);
+    }
+
+    #[test]
+    fn add_percents() {
+        let a = Percent::new(0.1);
+        let b = Percent::new(0.2);
+        assert_f64_eq((a + b).value(), 0.3);
+    }
+
+    #[test]
+    fn sub_percents() {
+        let a = Percent::new(0.5);
+        let b = Percent::new(0.2);
+        assert_f64_eq((a - b).value(), 0.3);
+    }
+
+    #[test]
+    fn add_assign_percents() {
+        let mut a = Percent::new(0.1);
+        a += Percent::new(0.2);
+        assert_f64_eq(a.value(), 0.3);
+    }
+
+    #[test]
+    fn sub_assign_percents() {
+        let mut a = Percent::new(0.5);
+        a -= Percent::new(0.2);
+        assert_f64_eq(a.value(), 0.3);
+    }
+
+    #[test]
+    fn sum_percents() {
+        let values = [
+            Percent::new(0.1),
+            Percent::new(0.2),
+            Percent::new(0.3),
+        ];
+        let total: Percent = values.into_iter().sum();
+        assert_f64_eq(total.value(), 0.6);
     }
 }
