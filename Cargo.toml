@@ -1,11 +1,19 @@
 [package]
 name = "fazuh-common"
+# Do not change this in the main branch!
+# On the release branches, this string will be automatically updated by CI
 
 
 version = "0.1.0"
 
 
 edition = "2024"
+authors = ["FAZuH <mail@fazuh.com>"]
+description = "Personal collection of common Rust code for my projects"
+license = "MIT"
+repository = "https://github.com/fazuh/fazuh-common-rs"
+keywords = ["utilities", "logging", "tracing", "types"]
+categories = ["development-tools", "rust-patterns"]
 
 [features]
 log = []
